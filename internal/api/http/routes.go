@@ -16,7 +16,8 @@ func NewRoutes(logger *zap.Logger, services *Services) http.Handler {
 	mux := http.NewServeMux()
 	jokes := handlers.NewJokeHandlers(logger, services.JokeService)
 
-	mux.HandleFunc("GET /v1/jokes", jokes.GetRandom)
+	mux.HandleFunc("POST /api/v1/jokes/personalized", jokes.GetPersonalized)
+	mux.HandleFunc("GET /api/v1/jokes/random", jokes.GetRandom)
 
 	return mux
 }
