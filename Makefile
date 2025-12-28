@@ -6,8 +6,13 @@ GO ?= CGO_ENABLED=0 GOOS=$(GOOS) GOARCH=$(GOARCH) go
 LINT_VERSION := v2.7.2
 GOLANGCI_LINT := $$(go env GOPATH)/bin/golangci-lint
 
+fmt:
+	$(GO) fmt ./...
+
+git-hooks:
+	git config --local core.hooksPath .githooks/
+
 lint: fmt
-	lint: fmt
 	@if ! [ -x "$(GOLANGCI_LINT)" ]; then \
 		echo "Installing golangci-lint..."; \
 		curl -sSfL https://raw.githubusercontent.com/golangci/golangci-lint/HEAD/install.sh \

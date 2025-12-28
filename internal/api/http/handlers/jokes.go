@@ -25,5 +25,6 @@ func (h *JokeHandlers) GetRandom(w http.ResponseWriter, r *http.Request) {
 		http.Error(w, http.StatusText(http.StatusInternalServerError), http.StatusInternalServerError)
 		return
 	}
-	w.Write([]byte(joke.Content))
+	// todo: ignore for now, this will be swapped for a reusable writer helper
+	_, _ = w.Write([]byte(joke.Content))
 }
