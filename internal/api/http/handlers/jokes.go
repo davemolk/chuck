@@ -22,22 +22,6 @@ func NewJokeHandlers(logger *zap.Logger, jokeService service.JokeService) *JokeH
 	}
 }
 
-func (h *JokeHandlers) GetRandom(w http.ResponseWriter, r *http.Request) {
-	query := r.URL.Query().Get("query")
-	if len(query) < minQueryLength {
-		http.Error(w, fmt.Sprintf("query of minimum length %d is required", minQueryLength), http.StatusBadRequest)
-		return
-	}
-
-	joke, err := h.jokeService.GetRandomJoke(r.Context(), query)
-	if err != nil {
-		http.Error(w, http.StatusText(http.StatusInternalServerError), http.StatusInternalServerError)
-		return
-	}
-
-	respondJSON(w, http.StatusOK, joke)
-}
-
 func (h *JokeHandlers) GetPersonalized(w http.ResponseWriter, r *http.Request) {
 	var req struct {
 		Name string `json:"name"`
@@ -55,11 +39,27 @@ func (h *JokeHandlers) GetPersonalized(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 
-	joke, err := h.jokeService.GetJoke(r.Context())
+	joke, err := h.jokeService.GetPersonalizedJoke(r.Context(), req.Name)
 	if err != nil {
 		http.Error(w, http.StatusText(http.StatusInternalServerError), http.StatusInternalServerError)
 		return
 	}
-	// todo: ignore for now, this will be swapped for a reusable writer helper
-	_, _ = w.Write([]byte(joke.Content))
+
+	respondJSON(w, http.StatusOK, joke)
+}
+
+func (h *JokeHandlers) GetRandom(w http.ResponseWriter, r *http.Request) {
+	query := r.URL.Query().Get("query")
+	if len(query) < minQueryLength {
+		http.Error(w, fmt.Sprintf("query of minimum length %d is required", minQueryLength), http.StatusBadRequest)
+		return
+	}
+
+	joke, err := h.jokeService.GetRandomJokeByQuery(r.Context(), query)
+	if err != nil {
+		http.Error(w, http.StatusText(http.StatusInternalServerError), http.StatusInternalServerError)
+		return
+	}
+
+	respondJSON(w, http.StatusOK, joke)
 }

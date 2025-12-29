@@ -5,6 +5,7 @@ import (
 	"encoding/json"
 	"fmt"
 	"net/http"
+	"net/url"
 	"strings"
 	"time"
 
@@ -13,22 +14,21 @@ import (
 )
 
 const (
-	searchJokeURL      = "https://api.chucknorris.io/jokes/search?query="
+	baseURL            = "https://api.chucknorris.io"
 	responseTimeFormat = "2006-01-02 15:04:05"
-	defaultLimit       = 30
 )
 
 type APIClient struct {
 	logger  *zap.Logger
-	Client  *http.Client
+	client  *http.Client
 	baseURL string
 }
 
 func NewClient(logger *zap.Logger) *APIClient {
 	return &APIClient{
 		logger:  logger,
-		Client:  http.DefaultClient,
-		baseURL: searchJokeURL,
+		client:  http.DefaultClient,
+		baseURL: baseURL,
 	}
 }
 
@@ -50,14 +50,11 @@ type chuckSearchResponse struct {
 // can return large results (e.g. 9667 records for a query of 'chuck').
 func (c *APIClient) Search(ctx context.Context, query string, limit int) ([]*domain.Joke, error) {
 	logger := c.logger.With(zap.String("query", query), zap.Int("limit", limit))
-	if limit == 0 {
-		logger.Debug("using default limit", zap.Int("limit", defaultLimit))
-		limit = defaultLimit
-	}
-
 	logger.Info("calling api search")
 
-	req, err := http.NewRequestWithContext(ctx, http.MethodGet, c.baseURL+query, nil)
+	url := fmt.Sprintf("%s/jokes/search?query=%s", c.baseURL, url.QueryEscape(query))
+
+	req, err := http.NewRequestWithContext(ctx, http.MethodGet, url, nil)
 	if err != nil {
 		return nil, fmt.Errorf("failed to create request: %w", err)
 	}
@@ -65,7 +62,7 @@ func (c *APIClient) Search(ctx context.Context, query string, limit int) ([]*dom
 	// Note: api returns 406 if we set Accept: application/json header
 	req.Header.Set("User-Agent", "https://github.com/davemolk/chuck")
 
-	resp, err := c.Client.Do(req)
+	resp, err := c.client.Do(req)
 	if err != nil {
 		return nil, fmt.Errorf("failed to make request: %w", err)
 	}

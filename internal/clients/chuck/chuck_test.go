@@ -11,16 +11,18 @@ import (
 )
 
 func TestSearch(t *testing.T) {
+	const validData = "../../tests/testdata/chuck.json"
+	const emptyData = "../../tests/testdata/empty.json"
 	t.Run("success", func(t *testing.T) {
 		ts := httptest.NewTLSServer(http.HandlerFunc(
 			func(w http.ResponseWriter, r *http.Request) {
-				http.ServeFile(w, r, "testdata/chuck.json")
+				http.ServeFile(w, r, validData)
 			}))
 		defer ts.Close()
 
 		c := NewClient(zap.NewNop())
 		c.baseURL = ts.URL
-		c.Client = ts.Client()
+		c.client = ts.Client()
 
 		got, err := c.Search(context.Background(), "foo", 10)
 		require.NoError(t, err)
@@ -31,13 +33,13 @@ func TestSearch(t *testing.T) {
 	t.Run("success, limit < results", func(t *testing.T) {
 		ts := httptest.NewTLSServer(http.HandlerFunc(
 			func(w http.ResponseWriter, r *http.Request) {
-				http.ServeFile(w, r, "testdata/chuck.json")
+				http.ServeFile(w, r, validData)
 			}))
 		defer ts.Close()
 
 		c := NewClient(zap.NewNop())
 		c.baseURL = ts.URL
-		c.Client = ts.Client()
+		c.client = ts.Client()
 
 		got, err := c.Search(context.Background(), "foo", 2)
 		require.NoError(t, err)
@@ -48,13 +50,13 @@ func TestSearch(t *testing.T) {
 	t.Run("handles empty", func(t *testing.T) {
 		ts := httptest.NewTLSServer(http.HandlerFunc(
 			func(w http.ResponseWriter, r *http.Request) {
-				http.ServeFile(w, r, "testdata/empty.json")
+				http.ServeFile(w, r, emptyData)
 			}))
 		defer ts.Close()
 
 		c := NewClient(zap.NewNop())
 		c.baseURL = ts.URL
-		c.Client = ts.Client()
+		c.client = ts.Client()
 
 		got, err := c.Search(context.Background(), "foo", 2)
 		require.NoError(t, err)

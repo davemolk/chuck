@@ -21,3 +21,6 @@ lint: fmt
 	@echo "linting..."
 	@"$(GOLANGCI_LINT)" run --timeout=5m
 	@echo "linting completed!"
+
+test:
+	go test -v -race ./...
