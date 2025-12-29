@@ -1,0 +1,69 @@
+services:
+  postgres:
+    image: postgres:15-alpine
+    container_name: chuck-jokes-db
+    restart: unless-stopped
+    environment:
+      POSTGRES_DB: chuck_jokes
+      POSTGRES_USER: chuck_user
+      POSTGRES_PASSWORD: chuck_password
+    ports:
+      - "5432:5432"
+    volumes:
+      - postgres_data:/var/lib/postgresql/data
+    healthcheck:
+      test: ["CMD-SHELL", "pg_isready -U chuck_user -d chuck_jokes"]
+      interval: 5s
+      timeout: 5s
+      retries: 5
+    networks:
+      - chuck-network
+
+  migrate:
+    image: migrate/migrate:v4.17.0
+    volumes:
+      - ./internal/migrations:/migrations:ro
+    command: >
+      -path=/migrations
+      -database postgres://chuck_user:chuck_password@postgres:5432/chuck_jokes?sslmode=disable
+      up
+    depends_on:
+      postgres:
+        condition: service_healthy
+    networks:
+      - chuck-network
+    restart: on-failure
+
+  app:
+    build:
+      context: .
+      dockerfile: Dockerfile
+    container_name: chuck-jokes-app
+    restart: unless-stopped
+    environment:
+      DATABASE_URL: postgres://chuck_user:chuck_password@postgres:5432/chuck_jokes?sslmode=disable
+      PORT: "8080"
+      PRODUCTION: true
+    depends_on:
+      postgres:
+        condition: service_healthy
+      migrate:
+        condition: service_completed_successfully
+    ports:
+      - "8080:8080"
+    networks:
+      - chuck-network
+    healthcheck:
+      test: ["CMD", "wget", "--quiet", "--tries=1", "--spider", "http://localhost:8080/health"]
+      interval: 30s
+      timeout: 5s
+      retries: 3
+      start_period: 10s
+
+volumes:
+  postgres_data:
+    driver: local
+
+networks:
+  chuck-network:
+    driver: bridge
