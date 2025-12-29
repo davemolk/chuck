@@ -1,13 +1,14 @@
 package domain
 
 import (
+	"errors"
 	"time"
-
-	"github.com/gofrs/uuid"
 )
 
+var ErrNotFound = errors.New("record not found")
+
 type Joke struct {
-	ID         uuid.UUID
+	ID         int64
 	ExternalID string
 	Content    string
 	URL        string

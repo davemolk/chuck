@@ -7,6 +7,6 @@ import (
 )
 
 type JokeService interface {
-	GetJoke(ctx context.Context) (*domain.Joke, error)
-	GetRandomJoke(ctx context.Context, query string) (*domain.Joke, error)
+	GetPersonalizedJoke(ctx context.Context, name string) (*domain.Joke, error)
+	GetRandomJokeByQuery(ctx context.Context, query string) (*domain.Joke, error)
 }

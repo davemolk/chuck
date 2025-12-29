@@ -15,6 +15,7 @@ import (
 	apihttp "github.com/davemolk/chuck/internal/api/http"
 	"github.com/davemolk/chuck/internal/clients/chuck"
 	"github.com/davemolk/chuck/internal/service/joke"
+	"github.com/davemolk/chuck/internal/sql"
 	"go.uber.org/zap"
 )
 
@@ -44,8 +45,17 @@ func run(ctx context.Context) error {
 
 	defer func() { _ = logger.Sync() }()
 
+	db, err := sql.New(logger, cfg.DbURL)
+	if err != nil {
+		return fmt.Errorf("failed to create db: %w", err)
+	}
+
+	if err = db.Ping(ctx); err != nil {
+		return fmt.Errorf("failed to ping db: %w", err)
+	}
+
 	chuckClient := chuck.NewClient(logger)
-	jokeService := joke.NewService(logger, chuckClient)
+	jokeService := joke.NewService(logger, db, chuckClient)
 
 	router := apihttp.NewRoutes(logger, &apihttp.Services{
 		JokeService: jokeService,
@@ -71,7 +81,10 @@ func run(ctx context.Context) error {
 
 		logger.Info("chuck norris delivered a roundhouse to the server")
 
-		// shutdown db once we have it
+		err = db.Close()
+		if err != nil {
+			shutdownErr <- err
+		}
 
 		logger.Info("chuck norris told the db to get chucked")
 
