@@ -11,7 +11,6 @@ import (
 	"github.com/davemolk/chuck/internal/tests/fixture"
 	"github.com/davemolk/chuck/internal/tests/mock"
 	"github.com/stretchr/testify/require"
-	"go.uber.org/zap"
 )
 
 func TestPersonalize(t *testing.T) {
@@ -99,7 +98,7 @@ func TestGetPersonalizedJoke(t *testing.T) {
 
 func TestGetRandomDBJokeByQuery(t *testing.T) {
 	db := dbtest.SetupTestDB(t)
-	s := NewService(zap.Must(zap.NewDevelopment()), db, nil)
+	s := NewService(fixture.TestLogger(t), db, nil)
 	ctx := context.Background()
 
 	t.Run("success, joke in db", func(t *testing.T) {

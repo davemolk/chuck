@@ -64,7 +64,6 @@ func (s *Service) Login(ctx context.Context, email, password string) (*domain.To
 
 	valid, err := s.validatePasswordHash(user.HashedPW, password)
 	if err != nil {
-		// log these attempts?
 		return nil, ErrInvalidCredentials
 	}
 
