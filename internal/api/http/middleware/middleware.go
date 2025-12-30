@@ -2,11 +2,14 @@ package middleware
 
 import (
 	"context"
+	"errors"
 	"fmt"
 	"net/http"
 	"runtime/debug"
+	"strings"
 	"time"
 
+	"github.com/davemolk/chuck/internal/domain"
 	"go.uber.org/zap"
 )
 
@@ -95,5 +98,54 @@ func RecoverPanic(logger *zap.Logger) func(http.Handler) http.Handler {
 
 			next.ServeHTTP(w, r)
 		})
+	}
+}
+
+type userAuthenticator interface {
+	GetUserForToken(ctx context.Context, token string) (*domain.User, error)
+}
+
+func Auth(userAuthenticator userAuthenticator) func(http.Handler) http.Handler {
+	return func(next http.Handler) http.Handler {
+		return http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
+			authHeader := r.Header.Get("Authorization")
+			if authHeader == "" {
+				next.ServeHTTP(w, r)
+				return
+			}
+
+			parts := strings.Split(authHeader, " ")
+			if len(parts) != 2 || parts[0] != "Bearer" {
+				http.Error(w, "invalid or missing authentication token", http.StatusUnauthorized)
+				return
+			}
+
+			token := parts[1]
+
+			user, err := userAuthenticator.GetUserForToken(r.Context(), token)
+			if err != nil {
+				if errors.Is(err, domain.ErrNotFound) {
+					http.Error(w, "invalid token", http.StatusUnauthorized)
+				} else {
+					http.Error(w, "server is unable to process request", http.StatusInternalServerError)
+				}
+				return
+			}
+
+			userCtx := UserToCtx(r.Context(), user)
+			r = r.WithContext(userCtx)
+			next.ServeHTTP(w, r)
+		})
+	}
+}
+
+func RequireAuth(next http.HandlerFunc) http.HandlerFunc {
+	return func(w http.ResponseWriter, r *http.Request) {
+		if _, err := UserFromCtx(r.Context()); err != nil {
+			http.Error(w, "authentication required", http.StatusUnauthorized)
+			return
+		}
+
+		next.ServeHTTP(w, r)
 	}
 }

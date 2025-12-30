@@ -14,7 +14,9 @@ import (
 
 	apihttp "github.com/davemolk/chuck/internal/api/http"
 	"github.com/davemolk/chuck/internal/clients/chuck"
+	"github.com/davemolk/chuck/internal/service/auth"
 	"github.com/davemolk/chuck/internal/service/joke"
+	"github.com/davemolk/chuck/internal/service/token"
 	"github.com/davemolk/chuck/internal/service/user"
 	"github.com/davemolk/chuck/internal/sql"
 	"go.uber.org/zap"
@@ -57,11 +59,14 @@ func run(ctx context.Context) error {
 
 	chuckClient := chuck.NewClient(logger)
 	jokeService := joke.NewService(logger, db, chuckClient)
-	userService := user.NewService(logger, db, nil)
+	tokenService := token.NewService(logger, db)
+	userService := user.NewService(logger, db)
+	authService := auth.NewService(logger, db, userService, tokenService)
 
 	router := apihttp.NewRoutes(logger, &apihttp.Services{
 		JokeService: jokeService,
 		UserService: userService,
+		AuthService: authService,
 	})
 
 	srv := apihttp.NewServer(logger, cfg.Port, router)

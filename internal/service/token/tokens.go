@@ -4,24 +4,28 @@ import (
 	"context"
 	"crypto/rand"
 	"crypto/sha256"
+	"database/sql"
 	"encoding/base32"
+	"errors"
 	"fmt"
 	"time"
 
 	"github.com/davemolk/chuck/internal/domain"
 	"github.com/davemolk/chuck/internal/service"
-	"github.com/davemolk/chuck/internal/sql"
+	sqldb "github.com/davemolk/chuck/internal/sql"
 	"go.uber.org/zap"
 )
+
+var ErrInvalidToken = errors.New("invalid token")
 
 var _ service.TokenService = (*Service)(nil)
 
 type Service struct {
 	logger *zap.Logger
-	db     *sql.DB
+	db     *sqldb.DB
 }
 
-func NewService(logger *zap.Logger, db *sql.DB) *Service {
+func NewService(logger *zap.Logger, db *sqldb.DB) *Service {
 	return &Service{
 		logger: logger,
 		db:     db,
@@ -57,7 +61,8 @@ func (s *Service) CreateToken(ctx context.Context, userID int64, ttl time.Durati
 
 	query := `
 	insert into tokens (hash, user_id, expires_at)
-	values ($1, $2, $3)`
+	values ($1, $2, $3)
+	`
 
 	args := []any{token.Hash, token.UserID, token.ExpiresAt}
 
@@ -66,4 +71,22 @@ func (s *Service) CreateToken(ctx context.Context, userID int64, ttl time.Durati
 	}
 
 	return token, nil
+}
+
+func (s *Service) ValidateToken(ctx context.Context, token string) (int64, error) {
+	hash := sha256.Sum256([]byte(token))
+
+	query := `select user_id from tokens where hash = $1 and expires_at > $2`
+
+	args := []any{hash[:], time.Now()}
+
+	var id int64
+	if err := s.db.QueryRowContext(ctx, query, args...).Scan(&id); err != nil {
+		if errors.Is(err, sql.ErrNoRows) {
+			return 0, ErrInvalidToken
+		}
+		return 0, fmt.Errorf("failed to validate token: %w", err)
+	}
+
+	return id, nil
 }

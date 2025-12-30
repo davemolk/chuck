@@ -39,7 +39,7 @@ func NewService(logger *zap.Logger, db *sqldb.DB, client chuckGetter) *Service {
 }
 
 func (s *Service) GetPersonalizedJoke(ctx context.Context, name string) (*domain.Joke, error) {
-	joke, err := s.getRandomDBJoke(ctx)
+	joke, err := s.GetRandomJoke(ctx)
 	if err != nil {
 		return nil, fmt.Errorf("failed to get joke for personalization: %w", err)
 	}
@@ -50,10 +50,10 @@ func (s *Service) GetPersonalizedJoke(ctx context.Context, name string) (*domain
 	return joke, nil
 }
 
-// getRandomDBJoke selects a joke at random from the database. Since we seed in
+// GetRandomJoke selects a joke at random from the database. Since we seed in
 // the initial migration, we will always have a result.
 // note: include somewhere, also check for current approach: https://stackoverflow.com/questions/7943233/fast-way-to-discover-the-row-count-of-a-table-in-postgresql/7945274#7945274
-func (s *Service) getRandomDBJoke(ctx context.Context) (*domain.Joke, error) {
+func (s *Service) GetRandomJoke(ctx context.Context) (*domain.Joke, error) {
 	query := `
 		select id, external_id, joke_url, content, created_at
 		from jokes

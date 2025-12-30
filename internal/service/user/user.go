@@ -17,18 +17,16 @@ import (
 var ErrDuplicateEmail = errors.New("duplicate email")
 
 type Service struct {
-	logger       *zap.Logger
-	db           *sqldb.DB
-	tokenService service.TokenService
+	logger *zap.Logger
+	db     *sqldb.DB
 }
 
 var _ service.UserService = (*Service)(nil)
 
-func NewService(logger *zap.Logger, db *sqldb.DB, tokenService service.TokenService) *Service {
+func NewService(logger *zap.Logger, db *sqldb.DB) *Service {
 	return &Service{
-		logger:       logger,
-		db:           db,
-		tokenService: tokenService,
+		logger: logger,
+		db:     db,
 	}
 }
 
@@ -66,11 +64,31 @@ func (s *Service) CreateUser(ctx context.Context, email, password string) (int64
 	return id, nil
 }
 
-func (s *Service) getByEmail(ctx context.Context, email string) (*domain.User, error) {
+func (s *Service) GetUserByEmail(ctx context.Context, email string) (*domain.User, error) {
 	query := `select id, email, hashed_pw, created_at from users where email = $1`
 
 	var u domain.User
 	err := s.db.QueryRowContext(ctx, query, email).Scan(
+		&u.ID,
+		&u.Email,
+		&u.HashedPW,
+		&u.CreatedAt,
+	)
+	if err != nil {
+		if errors.Is(err, sql.ErrNoRows) {
+			return nil, domain.ErrNotFound
+		}
+		return nil, fmt.Errorf("failed to get user: %w", err)
+	}
+
+	return &u, nil
+}
+
+func (s *Service) GetUserByID(ctx context.Context, id int64) (*domain.User, error) {
+	query := `select id, email, hashed_pw, created_at from users where id = $1`
+
+	var u domain.User
+	err := s.db.QueryRowContext(ctx, query, id).Scan(
 		&u.ID,
 		&u.Email,
 		&u.HashedPW,
