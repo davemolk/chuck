@@ -14,7 +14,7 @@ import (
 	"go.uber.org/zap"
 )
 
-const maxJokesFromAPI = 30
+const maxJokesFromAPI = 100
 
 var _ service.JokeService = (*Service)(nil)
 

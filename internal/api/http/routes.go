@@ -15,7 +15,9 @@ type Services struct {
 func NewRoutes(logger *zap.Logger, services *Services) http.Handler {
 	mux := http.NewServeMux()
 	jokes := handlers.NewJokeHandlers(logger, services.JokeService)
+	health := handlers.NewHealthHandlers()
 
+	mux.HandleFunc("GET /health", health.HealthCheck)
 	mux.HandleFunc("POST /api/v1/jokes/personalized", jokes.GetPersonalized)
 	mux.HandleFunc("GET /api/v1/jokes/random", jokes.GetRandom)
 

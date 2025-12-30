@@ -2,6 +2,7 @@ package dbtest
 
 import (
 	"context"
+	"errors"
 	"fmt"
 	"testing"
 
@@ -12,8 +13,7 @@ import (
 	"github.com/golang-migrate/migrate/v4/database/postgres"
 	"github.com/golang-migrate/migrate/v4/source/iofs"
 	"github.com/stretchr/testify/require"
-	"github.com/testcontainers/testcontainers-go"
-	"github.com/testcontainers/testcontainers-go/wait"
+	postgresTest "github.com/testcontainers/testcontainers-go/modules/postgres"
 	"go.uber.org/zap"
 )
 
@@ -21,35 +21,27 @@ func SetupTestDB(t *testing.T) *sql.DB {
 	t.Helper()
 	ctx := context.Background()
 
-	postgres, err := testcontainers.GenericContainer(ctx, testcontainers.GenericContainerRequest{
-		ContainerRequest: testcontainers.ContainerRequest{
-			Image:        "postgres:15-alpine",
-			ExposedPorts: []string{"5432/tcp"},
-			Env: map[string]string{
-				"POSTGRES_DB":       "chucktest",
-				"POSTGRES_USER":     "test",
-				"POSTGRES_PASSWORD": "test",
-			},
-			WaitingFor: wait.ForListeningPort("5432/tcp"),
-		},
-		Started: true,
-	})
+	pgContainer, err := postgresTest.Run(ctx,
+		"postgres:17-alpine",
+		postgresTest.WithDatabase("chucktest"),
+		postgresTest.WithUsername("test"),
+		postgresTest.WithPassword("test"),
+		postgresTest.BasicWaitStrategies(),
+	)
 	require.NoError(t, err)
 
 	t.Cleanup(func() {
-		err = postgres.Terminate(ctx)
+		err = pgContainer.Terminate(ctx)
 		require.NoError(t, err)
 	})
 
-	host, err := postgres.Host(ctx)
+	dbURL, err := pgContainer.ConnectionString(ctx, "sslmode=disable")
 	require.NoError(t, err)
-
-	port, err := postgres.MappedPort(ctx, "5432")
-	require.NoError(t, err)
-
-	dbURL := fmt.Sprintf("postgres://test:test@%s:%s/chucktest?sslmode=disable", host, port.Port())
 
 	database, err := sql.New(zap.Must(zap.NewDevelopment()), dbURL)
+	require.NoError(t, err)
+
+	err = database.PingContext(ctx)
 	require.NoError(t, err)
 
 	err = runMigrations(database)
@@ -79,5 +71,9 @@ func runMigrations(db *sql.DB) error {
 		return fmt.Errorf("failed to get migrator: %w", err)
 	}
 
-	return m.Up()
+	if err := m.Up(); err != nil && !errors.Is(err, migrate.ErrNoChange) {
+		return fmt.Errorf("migration failed: %w", err)
+	}
+
+	return nil
 }
