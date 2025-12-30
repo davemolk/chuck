@@ -9,6 +9,19 @@ CREATE TABLE IF NOT EXISTS jokes (
 );
 CREATE INDEX IF NOT EXISTS idx_jokes_content ON jokes USING gin(to_tsvector('simple', content));
 
+CREATE TABLE IF NOT EXISTS users (
+    id bigserial primary key,
+    hashed_pw bytea not null,
+    created_at timestamp not null default current_timestamp,
+    email citext unique not null
+);
+
+CREATE TABLE IF NOT EXISTS tokens (
+    hash bytea primary key,
+    user_id bigint not null references users on delete cascade,
+    expires_at timestamp not null
+);
+
 -- seed database
 INSERT INTO jokes (external_id, joke_url, content)
 VALUES

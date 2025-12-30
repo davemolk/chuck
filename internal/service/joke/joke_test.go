@@ -8,6 +8,7 @@ import (
 
 	"github.com/davemolk/chuck/internal/domain"
 	"github.com/davemolk/chuck/internal/sql/dbtest"
+	"github.com/davemolk/chuck/internal/tests/fixture"
 	"github.com/davemolk/chuck/internal/tests/mock"
 	"github.com/stretchr/testify/require"
 	"go.uber.org/zap"
@@ -77,17 +78,17 @@ func TestPersonalize(t *testing.T) {
 
 func TestGetRandomDBJoke(t *testing.T) {
 	db := dbtest.SetupTestDB(t)
-	s := NewService(zap.NewNop(), db, nil)
+	s := NewService(fixture.TestLogger(t), db, nil)
 	ctx := context.Background()
 
-	joke, err := s.getRandomDBJoke(ctx)
+	joke, err := s.GetRandomJoke(ctx)
 	require.NoError(t, err)
 	require.Contains(t, joke.Content, "Chuck")
 }
 
 func TestGetPersonalizedJoke(t *testing.T) {
 	db := dbtest.SetupTestDB(t)
-	s := NewService(zap.NewNop(), db, nil)
+	s := NewService(fixture.TestLogger(t), db, nil)
 	ctx := context.Background()
 
 	name := "dave molk"
