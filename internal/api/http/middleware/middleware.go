@@ -48,12 +48,19 @@ func Logger(logger *zap.Logger) func(http.Handler) http.Handler {
 			wrapped := newRespWriter(w)
 			reqID := RequestIDFromCtx(r.Context())
 
-			logger.Info("request started", zap.String("request_id", reqID), zap.String("method", r.Method), zap.String("path", r.URL.Path), zap.String("ua", r.UserAgent()))
+			var email string
+			user, err := UserFromCtx(r.Context())
+			// todo: come back to this
+			if err == nil && user != nil {
+				email = user.Email
+			}
+
+			logger.Info("request started", zap.String("request_id", reqID), zap.String("email", email), zap.String("method", r.Method), zap.String("path", r.URL.Path), zap.String("ua", r.UserAgent()))
 
 			next.ServeHTTP(wrapped, r)
-			duration := time.Since(start)
 
-			logger.Info("request finished", zap.String("request_id", reqID), zap.String("method", r.Method), zap.String("path", r.URL.Path), zap.String("ua", r.UserAgent()), zap.Int("status", wrapped.statusCode), zap.Duration("duration", duration))
+			duration := time.Since(start)
+			logger.Info("request finished", zap.String("request_id", reqID), zap.String("email", email), zap.String("method", r.Method), zap.String("path", r.URL.Path), zap.String("ua", r.UserAgent()), zap.Int("status", wrapped.statusCode), zap.Duration("duration", duration))
 		})
 	}
 }

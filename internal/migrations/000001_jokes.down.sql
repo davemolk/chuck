@@ -1,1 +1,3 @@
 DROP TABLE IF EXISTS jokes;
+DROP TABLE IF EXISTS users cascade;
+DROP TABLE IF EXISTS tokens;

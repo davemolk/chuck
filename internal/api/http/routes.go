@@ -11,6 +11,7 @@ import (
 
 type Services struct {
 	JokeService service.JokeService
+	UserService service.UserService
 }
 
 func NewRoutes(logger *zap.Logger, services *Services) http.Handler {
@@ -18,10 +19,12 @@ func NewRoutes(logger *zap.Logger, services *Services) http.Handler {
 
 	health := handlers.NewHealthHandlers()
 	jokes := handlers.NewJokeHandlers(logger, services.JokeService)
+	users := handlers.NewUserHandlers(logger, services.UserService)
 
 	mux.HandleFunc("GET /health", health.HealthCheck)
 	mux.HandleFunc("POST /api/v1/jokes/personalized", jokes.GetPersonalized)
 	mux.HandleFunc("GET /api/v1/jokes/random", jokes.GetRandom)
+	mux.HandleFunc("POST /api/v1/users", users.CreateUser)
 
 	var handler http.Handler = mux
 	handler = middleware.Logger(logger)(handler)
