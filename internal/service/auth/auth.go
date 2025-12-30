@@ -34,7 +34,7 @@ func NewService(logger *zap.Logger, db *sqldb.DB, userService service.UserServic
 }
 
 func (s *Service) GetUserForToken(ctx context.Context, token string) (*domain.User, error) {
-	s.logger.Info("validating token", zap.String("t", token))
+	s.logger.Info("validating token")
 	userID, err := s.tokenService.ValidateToken(ctx, token)
 	if err != nil {
 		return nil, err
