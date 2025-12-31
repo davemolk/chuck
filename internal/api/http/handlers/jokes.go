@@ -1,16 +1,11 @@
 package handlers
 
 import (
-	"errors"
-	"fmt"
 	"net/http"
 
 	"github.com/davemolk/chuck/internal/service"
 	"go.uber.org/zap"
 )
-
-// minQueryLength is a limit set by the Chuck Norris API.
-const minQueryLength = 3
 
 type JokeHandlers struct {
 	logger      *zap.Logger
@@ -26,8 +21,9 @@ func NewJokeHandlers(logger *zap.Logger, jokeService service.JokeService) *JokeH
 
 func (h *JokeHandlers) GetPersonalizedJoke(w http.ResponseWriter, r *http.Request) {
 	name := r.URL.Query().Get("name")
-	if name == "" {
-		respondError(w, r, h.logger, http.StatusBadRequest, errors.New("name is required"))
+
+	if err := validateName(name); err != nil {
+		respondError(w, r, h.logger, http.StatusBadRequest, err)
 		return
 	}
 
@@ -52,8 +48,9 @@ func (h *JokeHandlers) GetRandomJoke(w http.ResponseWriter, r *http.Request) {
 
 func (h *JokeHandlers) GetRandomJokeByQuery(w http.ResponseWriter, r *http.Request) {
 	query := r.URL.Query().Get("query")
-	if len(query) < minQueryLength {
-		respondError(w, r, h.logger, http.StatusBadRequest, fmt.Errorf("query of minimum length %d is required", minQueryLength))
+
+	if err := validateQuery(query); err != nil {
+		respondError(w, r, h.logger, http.StatusBadRequest, err)
 		return
 	}
 

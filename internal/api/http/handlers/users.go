@@ -1,7 +1,6 @@
 package handlers
 
 import (
-	"errors"
 	"net/http"
 
 	"github.com/davemolk/chuck/internal/service"
@@ -31,13 +30,13 @@ func (h *UserHandlers) CreateUser(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 
-	if req.Email == "" {
-		respondError(w, r, h.logger, http.StatusBadRequest, errors.New("email required"))
+	if err := validateEmail(req.Email); err != nil {
+		respondError(w, r, h.logger, http.StatusBadRequest, err)
 		return
 	}
 
-	if req.Password == "" {
-		respondError(w, r, h.logger, http.StatusBadRequest, errors.New("password required"))
+	if err := validatePassword(req.Password); err != nil {
+		respondError(w, r, h.logger, http.StatusBadRequest, err)
 		return
 	}
 
