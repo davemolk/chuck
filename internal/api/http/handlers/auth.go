@@ -26,7 +26,17 @@ func (h *AuthHandlers) Login(w http.ResponseWriter, r *http.Request) {
 	}
 
 	if err := readJSON(w, r, &req); err != nil {
-		respondError(w, r, h.logger, errToStatusCode(err), err)
+		respondError(w, r, h.logger, http.StatusBadRequest, err)
+		return
+	}
+
+	if err := validateEmail(req.Email); err != nil {
+		respondError(w, r, h.logger, http.StatusBadRequest, err)
+		return
+	}
+
+	if err := validatePassword(req.Password); err != nil {
+		respondError(w, r, h.logger, http.StatusBadRequest, err)
 		return
 	}
 

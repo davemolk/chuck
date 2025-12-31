@@ -54,3 +54,32 @@ func TestGetUserByEmail(t *testing.T) {
 		require.Equal(t, id, user.ID)
 	})
 }
+
+func TestGetUserByID(t *testing.T) {
+	db := dbtest.SetupTestDB(t)
+	s := NewService(fixture.TestLogger(t), db)
+	ctx := context.Background()
+
+	t.Run("error: user not exist", func(t *testing.T) {
+		_, err := s.GetUserByID(ctx, 1)
+		require.Error(t, err)
+		require.True(t, errors.Is(err, domain.ErrNotFound))
+	})
+
+	id, err := s.CreateUser(ctx, "email.com", "pw")
+	require.NoError(t, err)
+
+	id2, err := s.CreateUser(ctx, "email2.com", "pw")
+	require.NoError(t, err)
+
+	t.Run("success", func(t *testing.T) {
+		user, err := s.GetUserByID(ctx, id)
+		require.NoError(t, err)
+		require.Equal(t, id, user.ID)
+
+		// make sure we can get other users
+		user2, err := s.GetUserByID(ctx, id2)
+		require.NoError(t, err)
+		require.Equal(t, id2, user2.ID)
+	})
+}

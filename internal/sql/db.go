@@ -18,11 +18,11 @@ type DB struct {
 func New(logger *zap.Logger, dbURL string) (*DB, error) {
 	sqlDB, err := sql.Open("postgres", dbURL)
 	if err != nil {
-		return nil, fmt.Errorf("faield to open db: %w", err)
+		return nil, fmt.Errorf("failed to open db: %w", err)
 	}
 
 	// Note, with more time, would expose these to caller for more control
-	sqlDB.SetMaxIdleConns(25)
+	sqlDB.SetMaxOpenConns(25)
 	sqlDB.SetMaxIdleConns(25)
 	sqlDB.SetConnMaxIdleTime(10 * time.Minute)
 

@@ -5,6 +5,10 @@ import (
 	"net/http"
 
 	"github.com/davemolk/chuck/internal/domain"
+	"github.com/davemolk/chuck/internal/service/auth"
+	"github.com/davemolk/chuck/internal/service/joke"
+	"github.com/davemolk/chuck/internal/service/token"
+	"github.com/davemolk/chuck/internal/service/user"
 
 	"github.com/davemolk/chuck/internal/api/http/middleware"
 	"go.uber.org/zap"
@@ -50,6 +54,14 @@ func errToStatusCode(err error) int {
 	switch err {
 	case domain.ErrNotFound:
 		return http.StatusNotFound
+	case joke.ErrNoJokes:
+		return http.StatusNotFound
+	case auth.ErrInvalidCredentials:
+		return http.StatusUnauthorized
+	case token.ErrInvalidToken:
+		return http.StatusUnauthorized
+	case user.ErrDuplicateEmail:
+		return http.StatusBadRequest
 	default:
 		return http.StatusInternalServerError
 	}

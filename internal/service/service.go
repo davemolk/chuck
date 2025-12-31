@@ -26,5 +26,5 @@ type UserService interface {
 
 type AuthService interface {
 	Login(ctx context.Context, email, password string) (*domain.Token, error)
-	GetUserForToken(ctx context.Context, token string) (*domain.User, error)
+	GetUserIDForToken(ctx context.Context, token string) (*domain.User, error)
 }

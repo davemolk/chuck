@@ -33,7 +33,7 @@ func NewService(logger *zap.Logger, db *sqldb.DB, userService service.UserServic
 	}
 }
 
-func (s *Service) GetUserForToken(ctx context.Context, token string) (*domain.User, error) {
+func (s *Service) GetUserIDForToken(ctx context.Context, token string) (*domain.User, error) {
 	s.logger.Info("validating token")
 	userID, err := s.tokenService.ValidateToken(ctx, token)
 	if err != nil {
@@ -64,7 +64,6 @@ func (s *Service) Login(ctx context.Context, email, password string) (*domain.To
 
 	valid, err := s.validatePasswordHash(user.HashedPW, password)
 	if err != nil {
-		// log these attempts?
 		return nil, ErrInvalidCredentials
 	}
 

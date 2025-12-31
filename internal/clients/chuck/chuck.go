@@ -59,7 +59,6 @@ func (c *APIClient) Search(ctx context.Context, query string, limit int) ([]*dom
 		return nil, fmt.Errorf("failed to create request: %w", err)
 	}
 
-	// Note: api returns 406 if we set Accept: application/json header
 	req.Header.Set("User-Agent", "https://github.com/davemolk/chuck")
 
 	resp, err := c.client.Do(req)

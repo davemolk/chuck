@@ -1,0 +1,17 @@
+version: "2"
+run:
+  timeout: 5m
+  tests: false
+
+linters:
+  enable:
+    - errcheck
+    - govet
+    - bodyclose
+    - unconvert
+    - ineffassign
+    - goprintffuncname
+    - staticcheck
+    - unused
+    - whitespace
+    - misspell

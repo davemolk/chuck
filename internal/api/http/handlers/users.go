@@ -30,6 +30,16 @@ func (h *UserHandlers) CreateUser(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 
+	if err := validateEmail(req.Email); err != nil {
+		respondError(w, r, h.logger, http.StatusBadRequest, err)
+		return
+	}
+
+	if err := validatePassword(req.Password); err != nil {
+		respondError(w, r, h.logger, http.StatusBadRequest, err)
+		return
+	}
+
 	user, err := h.userService.CreateUser(r.Context(), req.Email, req.Password)
 	if err != nil {
 		respondError(w, r, h.logger, errToStatusCode(err), err)
