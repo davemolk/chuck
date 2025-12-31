@@ -85,10 +85,10 @@ func TestCreateUser(t *testing.T) {
 		require.Equal(t, email, gotEmail)
 		require.Equal(t, pw, gotPW)
 
-		var got int64
+		var got map[string]any
 		err := json.NewDecoder(w.Body).Decode(&got)
 		require.NoError(t, err)
 
-		require.Equal(t, int64(1), got)
+		require.Equal(t, float64(1), got["user_id"])
 	})
 }
