@@ -53,7 +53,6 @@ func Logger(logger *zap.Logger) func(http.Handler) http.Handler {
 
 			var email string
 			user, err := UserFromCtx(r.Context())
-			// todo: come back to this
 			if err == nil && user != nil {
 				email = user.Email
 			}

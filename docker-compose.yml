@@ -43,7 +43,7 @@ services:
     environment:
       DATABASE_URL: postgres://chuck_user:chuck_password@postgres:5432/chuck_jokes?sslmode=disable
       PORT: "8080"
-      PRODUCTION: true
+      PRODUCTION: false
     depends_on:
       postgres:
         condition: service_healthy
