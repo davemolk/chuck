@@ -35,7 +35,7 @@ func TestGetUserForToken(t *testing.T) {
 	ctx := context.Background()
 
 	t.Run("success", func(t *testing.T) {
-		user, err := s.GetUserForToken(ctx, "my token")
+		user, err := s.GetUserIDForToken(ctx, "my token")
 		require.NoError(t, err)
 		require.Equal(t, email, user.Email)
 	})
@@ -47,7 +47,7 @@ func TestGetUserForToken(t *testing.T) {
 			},
 		}
 		s.tokenService = invalidTokenService
-		_, err := s.GetUserForToken(ctx, "my token")
+		_, err := s.GetUserIDForToken(ctx, "my token")
 		require.Error(t, err)
 		require.True(t, errors.Is(err, token.ErrInvalidToken))
 		s.tokenService = tokenService
@@ -60,7 +60,7 @@ func TestGetUserForToken(t *testing.T) {
 			},
 		}
 		s.userService = invalidUserService
-		_, err := s.GetUserForToken(ctx, "my token")
+		_, err := s.GetUserIDForToken(ctx, "my token")
 		require.Error(t, err)
 	})
 }

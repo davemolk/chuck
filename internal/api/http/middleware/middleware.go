@@ -102,7 +102,7 @@ func RecoverPanic(logger *zap.Logger) func(http.Handler) http.Handler {
 }
 
 type userAuthenticator interface {
-	GetUserForToken(ctx context.Context, token string) (*domain.User, error)
+	GetUserIDForToken(ctx context.Context, token string) (*domain.User, error)
 }
 
 func Auth(userAuthenticator userAuthenticator) func(http.Handler) http.Handler {
@@ -122,7 +122,7 @@ func Auth(userAuthenticator userAuthenticator) func(http.Handler) http.Handler {
 
 			token := parts[1]
 
-			user, err := userAuthenticator.GetUserForToken(r.Context(), token)
+			user, err := userAuthenticator.GetUserIDForToken(r.Context(), token)
 			if err != nil {
 				if errors.Is(err, domain.ErrNotFound) {
 					http.Error(w, "invalid token", http.StatusUnauthorized)

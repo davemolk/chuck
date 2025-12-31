@@ -25,9 +25,9 @@ func NewRoutes(logger *zap.Logger, services *Services) http.Handler {
 
 	mux.HandleFunc("GET /health", health.HealthCheck)
 
-	mux.HandleFunc("GET /api/v1/jokes/random", jokes.GetRandom)
-	mux.HandleFunc("GET /api/v1/jokes/search", middleware.RequireAuth(jokes.GetRandomByQuery))
-	mux.HandleFunc("GET /api/v1/jokes/personalized", middleware.RequireAuth(jokes.GetPersonalized))
+	mux.HandleFunc("GET /api/v1/jokes/random", jokes.GetRandomJoke)
+	mux.HandleFunc("GET /api/v1/jokes/search", middleware.RequireAuth(jokes.GetRandomJokeByQuery))
+	mux.HandleFunc("GET /api/v1/jokes/personalized", middleware.RequireAuth(jokes.GetPersonalizedJoke))
 
 	mux.HandleFunc("POST /api/v1/users", users.CreateUser)
 	mux.HandleFunc("POST /api/v1/auth/login", auth.Login)

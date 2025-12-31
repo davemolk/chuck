@@ -1,6 +1,7 @@
 package handlers
 
 import (
+	"errors"
 	"net/http"
 
 	"github.com/davemolk/chuck/internal/service"
@@ -26,7 +27,17 @@ func (h *AuthHandlers) Login(w http.ResponseWriter, r *http.Request) {
 	}
 
 	if err := readJSON(w, r, &req); err != nil {
-		respondError(w, r, h.logger, errToStatusCode(err), err)
+		respondError(w, r, h.logger, http.StatusBadRequest, err)
+		return
+	}
+
+	if req.Email == "" {
+		respondError(w, r, h.logger, http.StatusBadRequest, errors.New("email required"))
+		return
+	}
+
+	if req.Password == "" {
+		respondError(w, r, h.logger, http.StatusBadRequest, errors.New("password required"))
 		return
 	}
 
