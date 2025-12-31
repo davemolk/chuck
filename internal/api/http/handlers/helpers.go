@@ -19,7 +19,9 @@ func respondJSON(w http.ResponseWriter, status int, data any) {
 	w.WriteHeader(status)
 
 	if data != nil {
-		if err := json.NewEncoder(w).Encode(data); err != nil {
+		e := json.NewEncoder(w)
+		e.SetIndent("", "    ")
+		if err := e.Encode(data); err != nil {
 			return
 		}
 	}

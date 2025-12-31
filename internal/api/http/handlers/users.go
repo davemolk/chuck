@@ -40,11 +40,15 @@ func (h *UserHandlers) CreateUser(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 
-	user, err := h.userService.CreateUser(r.Context(), req.Email, req.Password)
+	userID, err := h.userService.CreateUser(r.Context(), req.Email, req.Password)
 	if err != nil {
 		respondError(w, r, h.logger, errToStatusCode(err), err)
 		return
 	}
 
-	respondJSON(w, http.StatusCreated, user)
+	data := map[string]any{
+		"user_id": userID,
+	}
+
+	respondJSON(w, http.StatusCreated, data)
 }

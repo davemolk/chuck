@@ -33,7 +33,15 @@ func (h *JokeHandlers) GetPersonalizedJoke(w http.ResponseWriter, r *http.Reques
 		return
 	}
 
-	respondJSON(w, http.StatusOK, joke)
+	data := map[string]any{
+		"id":           joke.ID,
+		"external_id":  joke.ExternalID,
+		"joke":         joke.Content,
+		"external_url": joke.URL,
+		"created_at":   joke.CreatedAt,
+	}
+
+	respondJSON(w, http.StatusOK, data)
 }
 
 func (h *JokeHandlers) GetRandomJoke(w http.ResponseWriter, r *http.Request) {
@@ -43,7 +51,15 @@ func (h *JokeHandlers) GetRandomJoke(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 
-	respondJSON(w, http.StatusOK, joke)
+	data := map[string]any{
+		"id":           joke.ID,
+		"external_id":  joke.ExternalID,
+		"joke":         joke.Content,
+		"external_url": joke.URL,
+		"created_at":   joke.CreatedAt,
+	}
+
+	respondJSON(w, http.StatusOK, data)
 }
 
 func (h *JokeHandlers) GetRandomJokeByQuery(w http.ResponseWriter, r *http.Request) {
@@ -60,5 +76,13 @@ func (h *JokeHandlers) GetRandomJokeByQuery(w http.ResponseWriter, r *http.Reque
 		return
 	}
 
-	respondJSON(w, http.StatusOK, joke)
+	data := map[string]any{
+		"id":           joke.ID,
+		"external_id":  joke.ExternalID,
+		"joke":         joke.Content,
+		"external_url": joke.URL,
+		"created_at":   joke.CreatedAt,
+	}
+
+	respondJSON(w, http.StatusOK, data)
 }
