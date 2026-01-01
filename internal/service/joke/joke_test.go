@@ -102,7 +102,7 @@ func TestGetRandomDBJokeByQuery(t *testing.T) {
 	ctx := context.Background()
 
 	t.Run("success, joke in db", func(t *testing.T) {
-		joke, err := s.getRandomDBJokeByQuery(ctx, "uniq")
+		joke, err := s.getRandomDBJokeByQuery(ctx, "horse")
 		require.NoError(t, err)
 		require.Equal(t, int64(4), joke.ID)
 	})

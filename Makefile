@@ -27,23 +27,23 @@ test:
 	go test -v -race ./...
 
 down:
-	docker-compose down -v
+	docker compose down -v
 
 build:
-	docker-compose build
+	docker compose build
 
 dev-up:
-	docker-compose up
+	docker compose up
 
 up:
-	docker-compose up -d
+	docker compose up -d
 
 dev: down build dev-up
 	@echo "app is running"
 	@echo "check logs via make logs"
 
 logs:
-	docker-compose logs -f
+	docker compose logs -f
 
 clean: down
 	docker system prune -f

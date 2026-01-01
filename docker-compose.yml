@@ -20,9 +20,9 @@ services:
       - chuck-network
 
   migrate:
-    image: migrate/migrate:v4.17.0
-    volumes:
-      - ./internal/migrations:/migrations:ro
+    build:
+      context: .
+      dockerfile: Dockerfile.migrate
     command: >
       -path=/migrations
       -database postgres://chuck_user:chuck_password@postgres:5432/chuck_jokes?sslmode=disable
