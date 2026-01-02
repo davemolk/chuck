@@ -54,11 +54,11 @@ func TestGetRandomJoke(t *testing.T) {
 
 		require.Equal(t, http.StatusOK, w.Code)
 
-		var got domain.Joke
+		var got map[string]any
 		err := json.NewDecoder(w.Body).Decode(&got)
 		require.NoError(t, err)
 
-		require.Equal(t, "beard", got.Content)
+		require.Equal(t, "beard", got["joke"])
 	})
 
 }
@@ -120,11 +120,11 @@ func TestGetRandomJokeByQuery(t *testing.T) {
 		require.Equal(t, http.StatusOK, w.Code)
 		require.Equal(t, query, gotQuery)
 
-		var got domain.Joke
+		var got map[string]any
 		err := json.NewDecoder(w.Body).Decode(&got)
 		require.NoError(t, err)
 
-		require.Equal(t, "beard", got.Content)
+		require.Equal(t, "beard", got["joke"])
 	})
 }
 
@@ -185,10 +185,10 @@ func TestGetPersonalizedJoke(t *testing.T) {
 		require.Equal(t, http.StatusOK, w.Code)
 		require.Equal(t, name, gotName)
 
-		var got domain.Joke
+		var got map[string]any
 		err := json.NewDecoder(w.Body).Decode(&got)
 		require.NoError(t, err)
 
-		require.Equal(t, name, got.Content)
+		require.Equal(t, name, got["joke"])
 	})
 }

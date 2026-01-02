@@ -89,10 +89,10 @@ func TestLogin(t *testing.T) {
 		require.Equal(t, email, gotEmail)
 		require.Equal(t, pw, gotPW)
 
-		var got domain.Token
+		var got map[string]any
 		err := json.NewDecoder(w.Body).Decode(&got)
 		require.NoError(t, err)
 
-		require.Equal(t, "blah", got.Plaintext)
+		require.Equal(t, "blah", got["token"])
 	})
 }

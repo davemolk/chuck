@@ -42,6 +42,10 @@ dev: down build dev-up
 	@echo "app is running"
 	@echo "check logs via make logs"
 
+run: down build up
+	@echo "app is running"
+	@echo "check logs via make logs"	
+
 logs:
 	docker compose logs -f
 

@@ -8,7 +8,7 @@ import (
 const (
 	// https://www.rfc-editor.org/errata/eid1690
 	maxEmailLength    = 254
-	maxPasswordLength = 100
+	maxPasswordLength = 30
 	minPasswordLength = 8
 	maxNameLength     = 100
 	minNameLength     = 1

@@ -8,18 +8,18 @@ import (
 var ErrNotFound = errors.New("record not found")
 
 type Joke struct {
-	ID         int64
-	ExternalID string
-	Content    string
-	URL        string
-	CreatedAt  time.Time
+	ID         int64     `json:"id"`
+	ExternalID string    `json:"external_id"`
+	Content    string    `json:"content"`
+	URL        string    `json:"original_url"`
+	CreatedAt  time.Time `json:"creatd_at"`
 }
 
 type Token struct {
-	Plaintext string `json:"token"`
-	Hash      []byte `json:"-"`
-	UserID    int64  `json:"-"`
-	ExpiresAt time.Time
+	Plaintext string    `json:"token"`
+	Hash      []byte    `json:"-"`
+	UserID    int64     `json:"-"`
+	ExpiresAt time.Time `json:"expires_at"`
 }
 
 type User struct {

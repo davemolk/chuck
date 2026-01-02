@@ -46,5 +46,10 @@ func (h *AuthHandlers) Login(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 
-	respondJSON(w, http.StatusOK, token)
+	data := map[string]any{
+		"token":      token.Plaintext,
+		"expires_at": token.ExpiresAt,
+	}
+
+	respondJSON(w, http.StatusOK, data)
 }
