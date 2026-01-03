@@ -43,7 +43,11 @@ All endpoints return JSON.
 
 Base API path: `/api/v1`
 
-Server listens on HTTPS only! I've included a self-signed cert for local development purposes. When testing the following curl commands, make sure to include **-k** to make curl skip the verification step and proceed without checking.
+Server listens on HTTPS only.
+
+For reviewer convenience, this repo includes a self-signed TLS certificate to be used for local development only. Because it is self-signed, TLS verification will fail by default.
+
+When testing the following curl commands, make sure to include **-k** to make curl skip the verification step and proceed without checking.
 
 ---
 
@@ -56,7 +60,7 @@ Service health check.
 
 **Example:**
 ```sh
-curl https://localhost:8080/health
+curl -k https://localhost:8080/health
 ```
 
 ## Jokes
@@ -69,7 +73,7 @@ Returns a random joke.
 
 **Example:**
 ```sh
-curl https://localhost:8080/api/v1/jokes/random
+curl -k https://localhost:8080/api/v1/jokes/random
 ```
 
 ### GET /api/v1/jokes/search
@@ -85,8 +89,8 @@ Returns a random joke based on submitted query.
 
 **Example:**
 ```sh
-curl -H "Authorization: Bearer <token>" \
-  "https://localhost:8080/api/v1/jokes/search?query=beard"
+curl -k -H "Authorization: Bearer <token>" \
+  "https://localhost:8080/api/v1/jokes/search?query=shark"
 ```
 
 ### GET /api/v1/jokes/personalized
@@ -102,7 +106,7 @@ Returns a random joke with submitted name for Chuck Norris.
 
 **Example:**
 ```sh
-curl -H "Authorization: Bearer <token>" \
+curl -k -H "Authorization: Bearer <token>" \
   "https://localhost:8080/api/v1/jokes/personalized?name=Dave"
 ```
 
@@ -126,7 +130,7 @@ Create a new user.
 
 **Example:**
 ```sh
-curl -X POST https://localhost:8080/api/v1/users \
+curl -k -X POST https://localhost:8080/api/v1/users \
   -H "Content-Type: application/json" \
   -d '{"email":"user@example.com","password":"password"}'
 ```
@@ -149,7 +153,7 @@ Authenticate a user and return an access token.
 
 **Example:**
 ```sh
-curl -X POST https://localhost:8080/api/v1/auth/login \
+curl -k -X POST https://localhost:8080/api/v1/auth/login \
   -H "Content-Type: application/json" \
   -d '{"email":"user@example.com","password":"password"}'
 ```
@@ -180,3 +184,6 @@ I hadn't worked with HTTP in quite a while before starting this project. As a re
 
 ## Approaches to testing
 I used a range of testing techniques in this project. While I'd normally reach for `moq` to generate mocks, it felt a bit like overkill here, so I instead handrolled some simple mocks that did what I needed. When I wanted to test against an actual database, I tried out `testcontainers` for the first time. For `TestPersonalize` (joke_test.go), I used table-driven tests to ensure that no matter what variant of Chuck we got, we'd be able to replace it with the user-submitted name. With more time, I'd add some end-to-end tests for additional peace of mind, but given the scope and timeline of this project, I think the current coverage is appropriate.
+
+## TLS Note
+I chose to include a self-signed certificate used only for local development to minimize setup time for reviewers. In a production setup, certificates would be issued and managed by a trusted CA and certificate verification would not be skipped.
