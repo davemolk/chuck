@@ -54,7 +54,7 @@ services:
     networks:
       - chuck-network
     healthcheck:
-      test: ["CMD", "wget", "--quiet", "--tries=1", "--spider", "http://localhost:8080/health"]
+      test: ["CMD", "wget", "--quiet", "--tries=1", "--spider", "--no-check-certificate", "https://localhost:8080/health"]
       interval: 30s
       timeout: 5s
       retries: 3
