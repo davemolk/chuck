@@ -32,7 +32,7 @@ func NewServer(logger *zap.Logger, port int, handler http.Handler) *Server {
 
 func (s *Server) Run() error {
 	s.logger.Info("starting server", zap.Int("port", s.port))
-	return s.server.ListenAndServe()
+	return s.server.ListenAndServeTLS("/tls/cert.pem", "/tls/key.pem")
 }
 
 func (s *Server) Shutdown(ctx context.Context) error {

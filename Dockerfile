@@ -19,12 +19,15 @@ RUN apk add --no-cache ca-certificates
 WORKDIR /app
 
 COPY --from=builder /app/server .
+COPY tls /tls
 
 COPY --from=builder /app/internal/migrations ./migrations
 
 RUN addgroup -g 1001 -S appgroup && \
     adduser -u 1001 -S appuser -G appgroup && \
-    chown -R appuser:appgroup /app
+    chown -R appuser:appgroup /app /tls && \
+    chmod 640 /tls/key.pem && \
+    chmod 644 /tls/cert.pem
 
 USER appuser
 

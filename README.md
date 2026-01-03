@@ -40,7 +40,10 @@ docker compose down -v
 ## API Endpoints
 
 All endpoints return JSON.  
+
 Base API path: `/api/v1`
+
+Server listens on HTTPS only! I've included a self-signed cert for local development purposes. When testing the following curl commands, make sure to include **-k** to make curl skip the verification step and proceed without checking.
 
 ---
 
@@ -53,7 +56,7 @@ Service health check.
 
 **Example:**
 ```sh
-curl http://localhost:8080/health
+curl https://localhost:8080/health
 ```
 
 ## Jokes
@@ -66,7 +69,7 @@ Returns a random joke.
 
 **Example:**
 ```sh
-curl http://localhost:8080/api/v1/jokes/random
+curl https://localhost:8080/api/v1/jokes/random
 ```
 
 ### GET /api/v1/jokes/search
@@ -83,7 +86,7 @@ Returns a random joke based on submitted query.
 **Example:**
 ```sh
 curl -H "Authorization: Bearer <token>" \
-  "http://localhost:8080/api/v1/jokes/search?query=beard"
+  "https://localhost:8080/api/v1/jokes/search?query=beard"
 ```
 
 ### GET /api/v1/jokes/personalized
@@ -100,7 +103,7 @@ Returns a random joke with submitted name for Chuck Norris.
 **Example:**
 ```sh
 curl -H "Authorization: Bearer <token>" \
-  "http://localhost:8080/api/v1/jokes/personalized?name=Dave"
+  "https://localhost:8080/api/v1/jokes/personalized?name=Dave"
 ```
 
 ## Users and Auth
@@ -123,7 +126,7 @@ Create a new user.
 
 **Example:**
 ```sh
-curl -X POST http://localhost:8080/api/v1/users \
+curl -X POST https://localhost:8080/api/v1/users \
   -H "Content-Type: application/json" \
   -d '{"email":"user@example.com","password":"password"}'
 ```
@@ -146,7 +149,7 @@ Authenticate a user and return an access token.
 
 **Example:**
 ```sh
-curl -X POST http://localhost:8080/api/v1/auth/login \
+curl -X POST https://localhost:8080/api/v1/auth/login \
   -H "Content-Type: application/json" \
   -d '{"email":"user@example.com","password":"password"}'
 ```
