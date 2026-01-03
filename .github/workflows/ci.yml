@@ -106,7 +106,7 @@ jobs:
           docker compose up -d --wait
 
           # Smoke test
-          curl --fail --retry 5 --retry-delay 2 http://localhost:8080/health
+          curl --fail --retry 5 --retry-delay 2 -k https://localhost:8080/health
 
           # Cleanup
           docker compose down -v
