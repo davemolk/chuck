@@ -47,11 +47,16 @@ func TestPersonalize(t *testing.T) {
 			expected: "Alice's keyboard has no escape key.",
 		},
 		{
-			name:   "replaces possessive with apostrophe only",
-			joke:   "Chuck Norris' code never has bugs.",
-			person: "Bob",
-			// todo change this if time
-			expected: "Bob' code never has bugs.",
+			name:     "replaces possessive with apostrophe only for names ending with s",
+			joke:     "Chuck Norris' code never has bugs.",
+			person:   "Lucas",
+			expected: "Lucas' code never has bugs.",
+		},
+		{
+			name:     "replaces possessive with apostrophe only",
+			joke:     "Chuck Norris' code never has bugs.",
+			person:   "Bob",
+			expected: "Bob's code never has bugs.",
 		},
 		{
 			name:     "replaces multiple occurrences",

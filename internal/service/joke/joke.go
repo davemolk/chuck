@@ -52,7 +52,6 @@ func (s *Service) GetPersonalizedJoke(ctx context.Context, name string) (*domain
 
 // GetRandomJoke selects a joke at random from the database. Since we seed in
 // the initial migration, we will always have a result.
-// note: include somewhere, also check for current approach: https://stackoverflow.com/questions/7943233/fast-way-to-discover-the-row-count-of-a-table-in-postgresql/7945274#7945274
 func (s *Service) GetRandomJoke(ctx context.Context) (*domain.Joke, error) {
 	query := `
 		select id, external_id, joke_url, content, created_at
@@ -81,8 +80,10 @@ func (s *Service) personalize(joke, name string) string {
 	joke = strings.ReplaceAll(joke, "chuck norris", strings.ToLower(name))
 	joke = strings.ReplaceAll(joke, "CHUCK NORRIS", strings.ToUpper(name))
 
-	joke = strings.ReplaceAll(joke, "Chuck Norris's", name+"'s")
-	joke = strings.ReplaceAll(joke, "Chuck Norris'", name+"'")
+	// handle possessive where name doesn't end with s, e.g. we want Bob's, not Bob'
+	if !strings.HasSuffix(name, "s") && strings.Contains(joke, name+"' ") {
+		joke = strings.ReplaceAll(joke, name+"' ", name+"'s ")
+	}
 
 	return joke
 }
@@ -119,7 +120,8 @@ func (s *Service) GetRandomJokeByQuery(ctx context.Context, query string) (*doma
 
 	// populate db. as we insert, we will scan the id to the slice we're passing in
 	if err = s.saveJokes(ctx, jokes); err != nil {
-		return nil, fmt.Errorf("failed to save jokes: %w", err)
+		// user should still get a joke if we can't save them
+		logger.Error("failed to save jokes", zap.Error(err))
 	}
 
 	// jokes will now have the id, so we can return from the slice instead
@@ -131,7 +133,7 @@ func (s *Service) getRandomDBJokeByQuery(ctx context.Context, query string) (*do
 	q := `
 		select id, external_id, joke_url, content, created_at
 		from jokes
-		where content ilike '%' || $1 || '%'
+		where to_tsvector('simple', content) @@ to_tsquery('simple', $1)
 		order by random()
 		limit 1
 	`
