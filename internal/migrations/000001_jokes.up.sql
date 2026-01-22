@@ -15,12 +15,15 @@ CREATE TABLE IF NOT EXISTS users (
     created_at timestamp not null default current_timestamp,
     email citext unique not null
 );
+CREATE INDEX idx_users_email ON USERS (email);
 
 CREATE TABLE IF NOT EXISTS tokens (
     hash bytea primary key,
     user_id bigint not null references users on delete cascade,
     expires_at timestamp not null
 );
+CREATE INDEX idx_tokens_user_id ON tokens (user_id);
+CREATE INDEX idx_tokens_expires_at ON tokens (expires_at);
 
 -- seed database
 INSERT INTO jokes (external_id, joke_url, content)

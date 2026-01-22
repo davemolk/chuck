@@ -15,21 +15,6 @@ jobs:
     name: Test
     runs-on: ubuntu-latest
 
-    services:
-      postgres:
-        image: postgres:15-alpine
-        env:
-          POSTGRES_DB: chuck_jokes
-          POSTGRES_USER: chuck_user
-          POSTGRES_PASSWORD: chuck_password
-        ports:
-          - 5432:5432
-        options: >-
-          --health-cmd "pg_isready -U chuck_user -d chuck_jokes"
-          --health-interval 10s
-          --health-timeout 5s
-          --health-retries 5
-
     steps:
       - uses: actions/checkout@v4
 
@@ -48,31 +33,7 @@ jobs:
       - name: Run go vet
         run: go vet ./...
 
-      - name: Cache migrate binary
-        id: cache-migrate
-        uses: actions/cache@v4
-        with:
-          path: /usr/local/bin/migrate
-          key: migrate-${{ env.MIGRATE_VERSION }}
-
-      - name: Install migrate
-        if: steps.cache-migrate.outputs.cache-hit != 'true'
-        run: |
-          curl -L https://github.com/golang-migrate/migrate/releases/download/${{ env.MIGRATE_VERSION }}/migrate.linux-amd64.tar.gz \
-            | tar xz
-          sudo mv migrate /usr/local/bin/migrate
-
-      - name: Run migrations
-        env:
-          DATABASE_URL: postgres://chuck_user:chuck_password@localhost:5432/chuck_jokes?sslmode=disable
-        run: |
-          migrate -path ./internal/migrations -database "$DATABASE_URL" up
-
       - name: Run tests
-        env:
-          DATABASE_URL: postgres://chuck_user:chuck_password@localhost:5432/chuck_jokes?sslmode=disable
-          PORT: 8080
-          PRODUCTION: false
         run: |
           go test -v -race -coverprofile=coverage.out -covermode=atomic ./...
       

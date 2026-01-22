@@ -31,6 +31,11 @@ func RequestIDFromCtx(ctx context.Context) string {
 	return ""
 }
 
+func RequestIDToCtx(ctx context.Context, requestID string) context.Context {
+	ctx = context.WithValue(ctx, requestIDKey, requestID)
+	return ctx
+}
+
 func UserFromCtx(ctx context.Context) (*domain.User, error) {
 	user, ok := ctx.Value(userKey).(*domain.User)
 	if !ok {

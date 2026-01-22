@@ -74,7 +74,7 @@ func RequestID(next http.Handler) http.Handler {
 			requestID = generateRequestID()
 		}
 
-		ctx := context.WithValue(r.Context(), requestIDKey, requestID)
+		ctx := RequestIDToCtx(r.Context(), requestID)
 		w.Header().Set(requestIDHeader, requestID)
 
 		next.ServeHTTP(w, r.WithContext(ctx))

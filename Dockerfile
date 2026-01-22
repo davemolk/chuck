@@ -14,14 +14,10 @@ RUN CGO_ENABLED=0 GOOS=linux go build \
 
 FROM alpine:latest
 
-RUN apk add --no-cache ca-certificates
-
 WORKDIR /app
 
 COPY --from=builder /app/server .
 COPY tls /tls
-
-COPY --from=builder /app/internal/migrations ./migrations
 
 RUN addgroup -g 1001 -S appgroup && \
     adduser -u 1001 -S appuser -G appgroup && \

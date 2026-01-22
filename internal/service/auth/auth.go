@@ -57,6 +57,7 @@ func (s *Service) Login(ctx context.Context, email, password string) (*domain.To
 	user, err := s.userService.GetUserByEmail(ctx, email)
 	if err != nil {
 		if errors.Is(err, domain.ErrNotFound) {
+			s.logger.Debug("auth_failed", zap.String("email", email), zap.String("reason", "user_not_found"))
 			return nil, ErrInvalidCredentials
 		}
 		return nil, fmt.Errorf("failed to get user: %w", err)
@@ -64,10 +65,12 @@ func (s *Service) Login(ctx context.Context, email, password string) (*domain.To
 
 	valid, err := s.validatePasswordHash(user.HashedPW, password)
 	if err != nil {
+		s.logger.Debug("auth_failed", zap.String("email", email), zap.String("reason", "bcrypt_error"))
 		return nil, ErrInvalidCredentials
 	}
 
 	if !valid {
+		s.logger.Debug("auth_failed", zap.String("email", email), zap.String("reason", "password_mismatch"))
 		return nil, ErrInvalidCredentials
 	}
 
@@ -82,12 +85,10 @@ func (s *Service) Login(ctx context.Context, email, password string) (*domain.To
 func (s *Service) validatePasswordHash(hash []byte, password string) (bool, error) {
 	err := bcrypt.CompareHashAndPassword(hash, []byte(password))
 	if err != nil {
-		switch {
-		case errors.Is(err, bcrypt.ErrMismatchedHashAndPassword):
+		if errors.Is(err, bcrypt.ErrMismatchedHashAndPassword) {
 			return false, nil
-		default:
-			return false, err
 		}
+		return false, err
 	}
 
 	return true, nil

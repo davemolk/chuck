@@ -16,6 +16,7 @@ import (
 const (
 	baseURL            = "https://api.chucknorris.io"
 	responseTimeFormat = "2006-01-02 15:04:05"
+	requestTimeout     = 10 * time.Second
 )
 
 type APIClient struct {
@@ -26,8 +27,10 @@ type APIClient struct {
 
 func NewClient(logger *zap.Logger) *APIClient {
 	return &APIClient{
-		logger:  logger,
-		client:  http.DefaultClient,
+		logger: logger,
+		client: &http.Client{
+			Timeout: requestTimeout,
+		},
 		baseURL: baseURL,
 	}
 }

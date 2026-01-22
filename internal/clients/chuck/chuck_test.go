@@ -11,8 +11,8 @@ import (
 )
 
 func TestSearch(t *testing.T) {
-	const validData = "../../tests/testdata/chuck.json"
-	const emptyData = "../../tests/testdata/empty.json"
+	const validData = "testdata/chuck.json"
+	const emptyData = "testdata/empty.json"
 	t.Run("success", func(t *testing.T) {
 		ts := httptest.NewTLSServer(http.HandlerFunc(
 			func(w http.ResponseWriter, r *http.Request) {
